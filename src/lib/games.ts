@@ -24,10 +24,11 @@ export const GAMES = [
     description: 'Put the story in the right order.',
   },
   {
-    name: 'Knowledge Map',
+    name: 'Atlas of Islamic Civilization',
     slug: 'knowledge-map',
     icon: '🗺️',
-    description: 'Explore Islamic civilization on a world map.',
+    description: 'Explore the lands where Muslim civilizations flourished.',
+    route: '/knowledge-map',
   },
   {
     name: 'Hero Match',

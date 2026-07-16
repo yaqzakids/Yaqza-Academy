@@ -1,0 +1,39 @@
+/** SVG path data for each historical region on the Muslim World map (viewBox 0 0 1066 546). */
+export const MUSLIM_WORLD_REGION_PATHS: Record<string, string> = {
+  andalusia: 'M95 95 L130 75 L155 82 L148 110 L115 125 L85 115Z',
+  'north-africa':
+    'M115 130 Q180 118 240 135 Q280 155 270 200 Q250 250 210 280 Q160 290 130 260 Q100 220 105 170Z',
+  egypt: 'M270 200 Q310 185 340 195 Q360 210 355 250 Q340 290 310 310 Q285 300 275 260 Q268 230 270 200Z',
+  'ash-sham': 'M355 155 Q390 145 420 160 Q435 185 425 210 Q400 225 375 215 Q355 195 355 155Z',
+  anatolia: 'M340 95 Q400 80 450 95 Q470 115 455 140 Q420 155 380 145 Q345 130 340 95Z',
+  balkans: 'M300 95 Q330 75 360 82 Q375 95 365 115 Q340 125 310 115Z',
+  arabia: 'M360 280 Q400 265 450 275 Q490 295 480 340 Q460 390 420 410 Q380 400 360 360 Q350 320 360 280Z',
+  iraq: 'M430 195 Q470 185 510 200 Q530 220 520 250 Q500 270 470 265 Q440 250 430 220Z',
+  persia: 'M510 170 Q570 155 620 175 Q640 200 630 240 Q610 280 560 290 Q520 280 505 240 Q500 200 510 170Z',
+  'central-asia': 'M580 55 Q660 40 720 60 Q750 90 730 130 Q690 155 630 140 Q590 115 580 55Z',
+  'indian-subcontinent':
+    'M620 260 Q680 240 720 270 Q740 310 720 360 Q680 400 640 390 Q610 350 620 260Z',
+  'east-africa': 'M350 400 Q400 385 440 400 Q460 430 440 470 Q400 490 360 475 Q340 440 350 400Z',
+  'southeast-asia':
+    'M780 300 Q840 280 900 310 Q920 350 880 390 Q840 410 800 380 Q770 340 780 300Z',
+  china: 'M750 55 Q820 45 880 70 Q900 100 860 130 Q800 145 760 120 Q740 90 750 55Z',
+}
+
+export const MUSLIM_WORLD_REGION_SLUG_ORDER = [
+  'andalusia',
+  'north-africa',
+  'egypt',
+  'ash-sham',
+  'anatolia',
+  'balkans',
+  'arabia',
+  'iraq',
+  'persia',
+  'central-asia',
+  'indian-subcontinent',
+  'east-africa',
+  'southeast-asia',
+  'china',
+] as const
+
+export { LOCKED_REGION_HOVER_MESSAGE } from './regionCountryGroups'

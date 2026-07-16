@@ -1,5 +1,1 @@
-import GamePlaceholder from './GamePlaceholder'
-
-export default function KnowledgeMapPage() {
-  return <GamePlaceholder slug="knowledge-map" />
-}
+export { default } from '@/features/knowledge-map/KnowledgeMapPage'
