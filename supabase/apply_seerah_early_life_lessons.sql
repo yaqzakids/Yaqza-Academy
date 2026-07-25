@@ -141,8 +141,7 @@ Key Takeaways
 $thinker$,
   quran_connection = 'Did He not find you an orphan and give you shelter?',
   quran_reference = 'Surah Ad-Duha 93:6',
-  reflection_question = 'How does knowing Allah cared for baby Muhammad ﷺ help you trust Allah when life feels difficult?',
-  updated_at = now()
+  reflection_question = 'How does knowing Allah cared for baby Muhammad ﷺ help you trust Allah when life feels difficult?'
 WHERE slug IN ('birth-of-prophet-muhammad', 'history-seerah-childhood', 'childhood-of-prophet-muhammad');
 
 -- ── Lesson 3: Halimah ────────────────────────────────────────────────────────
@@ -156,7 +155,7 @@ SET
   reading_time_minutes = 12,
   is_premium = false,
   published = true,
-  cover_image_url = '/articles/covers/life-with-halimah.png',
+  cover_image_url = '/articles/covers/life-with-halimah.jpg',
   usul_theme = 'revelation',
   content_explorer = $article$Life in the Desert
 
@@ -262,8 +261,7 @@ Key Takeaways
 $thinker$,
   quran_connection = 'Did He not find you an orphan and give you shelter?',
   quran_reference = 'Surah Ad-Duha 93:6',
-  reflection_question = 'When have you seen Allah bless someone who helped others in need?',
-  updated_at = now()
+  reflection_question = 'When have you seen Allah bless someone who helped others in need?'
 WHERE slug = 'life-with-halimah';
 
 -- ── Lesson 4: Opening of the Chest ───────────────────────────────────────────
@@ -359,8 +357,7 @@ Key Takeaways
 • Halimah's fear and return to Makkah show human concern alongside divine plan.
 • Allah prepares His messengers internally long before their public mission begins.
 $thinker$,
-  reflection_question = 'Why do you think Allah prepared the Prophet''s heart so early in his life?',
-  updated_at = now()
+  reflection_question = 'Why do you think Allah prepared the Prophet''s heart so early in his life?'
 WHERE slug = 'opening-of-the-chest';
 
 -- ── Lesson 5: Death of Aminah ────────────────────────────────────────────────
@@ -498,8 +495,7 @@ Key Takeaways
 $thinker$,
   quran_connection = 'Did He not find you an orphan and give you shelter?',
   quran_reference = 'Surah Ad-Duha 93:6',
-  reflection_question = 'How can losing someone we love teach us to be more compassionate toward others?',
-  updated_at = now()
+  reflection_question = 'How can losing someone we love teach us to be more compassionate toward others?'
 WHERE slug = 'death-of-aminah';
 
 -- ── Lesson 6: Abu Talib ───────────────────────────────────────────────────────
@@ -627,8 +623,7 @@ Key Takeaways
 • Social trust in Makkah became a foundation for prophetic credibility.
 • Allah's preparation included character formation, not only survival.
 $thinker$,
-  reflection_question = 'What does it mean to be someone people can truly trust — and how can you build that reputation?',
-  updated_at = now()
+  reflection_question = 'What does it mean to be someone people can truly trust — and how can you build that reputation?'
 WHERE slug = 'abu-talib-guardian';
 
 -- Collection links (lessons 2–6)

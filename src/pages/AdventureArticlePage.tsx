@@ -237,7 +237,9 @@ export default function AdventureArticlePage() {
         onClose={() => setShowCelebration(false)}
       />
 
-      <LessonHeroImage article={article} path={path} className="mb-0 [&_img]:rounded-none" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <LessonHeroImage article={article} path={path} className="mb-0 [&_img]:rounded-2xl" />
+      </div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         <Link to={lessonPathUrl(path)} className="text-teal text-sm font-bold hover:underline">
           ← Back to {lessonPathLabel(path)}

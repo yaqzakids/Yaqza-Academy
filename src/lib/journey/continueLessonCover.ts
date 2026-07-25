@@ -1,10 +1,11 @@
 import yearOfElephantCover from '@/assets/articles/the-year-of-the-elephant.png'
 import childhoodOfProphetCover from '@/assets/articles/childhood-of-prophet-muhammad.png'
 import theFirstRevelationCover from '@/assets/articles/the-first-revelation.png'
+import lifeWithHalimahCover from '@/assets/articles/life-with-halimah.jpg'
 
 export const HONEST_TONGUE_COVER = '/articles/covers/the-honest-tongue.png'
 export const KIND_HEART_COVER = '/articles/covers/the-kind-heart.png'
-export const LIFE_WITH_HALIMAH_COVER = '/articles/covers/life-with-halimah.png'
+export const LIFE_WITH_HALIMAH_COVER = lifeWithHalimahCover
 export const YEAR_OF_ELEPHANT_COVER = yearOfElephantCover
 export const CHILDHOOD_OF_PROPHET_COVER = childhoodOfProphetCover
 export const THE_FIRST_REVELATION_COVER = theFirstRevelationCover
@@ -37,6 +38,11 @@ export function resolveContinueLessonCover(options: {
   // Curated lesson covers always win over stale DB values (e.g. path cover copied onto article).
   if (articleSlug && ARTICLE_COVER_OVERRIDES[articleSlug]) {
     return ARTICLE_COVER_OVERRIDES[articleSlug]
+  }
+
+  const normalizedSlug = articleSlug?.trim().toLowerCase() ?? ''
+  if (normalizedSlug.includes('halimah')) {
+    return LIFE_WITH_HALIMAH_COVER
   }
 
   const normalizedTitle = articleTitle?.trim().toLowerCase() ?? ''
@@ -72,11 +78,9 @@ export function resolveContinueLessonCover(options: {
   }
 
   const trimmedCover = articleCoverUrl?.trim()
-  if (trimmedCover && trimmedCover !== pathCoverUrl?.trim()) {
-    return trimmedCover
-  }
+  if (trimmedCover) return trimmedCover
 
   if (pathCoverUrl?.trim()) return pathCoverUrl
 
-  return trimmedCover || null
+  return null
 }

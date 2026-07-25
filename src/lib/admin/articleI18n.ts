@@ -92,6 +92,12 @@ export function ageHasLocaleContent(bundle: ArticleLocaleBundle, age: AgeGroup):
   return String(bundle[ageContentKey[age]] ?? '').trim().length > 0
 }
 
+export function articleDisplayTitle(article: AdventureArticle): string {
+  const locales = articleToLocalesI18n(article)
+  const enTitle = locales.en?.title?.trim()
+  return enTitle || article.title?.trim() || ''
+}
+
 export function getLocalizedArticleFields(
   article: AdventureArticle,
   language: Language,
@@ -110,7 +116,22 @@ export function getLocalizedArticleFields(
 
   const title = pick(bundle.title, enBundle.title || article.title)
   const contentKey = ageContentKey[ageGroup]
-  const content = pick(String(bundle[contentKey] ?? ''), String(enBundle[contentKey] ?? ''))
+
+  function pickAgeContent(key: keyof ArticleLocaleBundle): string {
+    return pick(String(bundle[key] ?? ''), String(enBundle[key] ?? ''))
+  }
+
+  let content = pickAgeContent(contentKey)
+  if (!content.trim()) {
+    for (const fallback of (['explorer', 'discoverer', 'thinker'] as AgeGroup[])) {
+      if (fallback === ageGroup) continue
+      const fallbackContent = pickAgeContent(ageContentKey[fallback])
+      if (fallbackContent.trim()) {
+        content = fallbackContent
+        break
+      }
+    }
+  }
   const islamic = pick(bundle.islamic_teaching, enBundle.islamic_teaching || article.islamic_teaching || '')
   const activity = pick(bundle.activity, enBundle.activity || article.activity || '')
   const think =

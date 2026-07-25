@@ -268,12 +268,11 @@ export default function AdminLessonPreviewPage() {
           </div>
         </div>
       ) : (
-        <>
-          <LessonHeroImage article={article} path={path} className="mb-0 [&_img]:rounded-none" />
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
-            <p className="text-sm text-muted mb-4">
-              Previewing as <span className="font-bold text-navy">{lessonPathLabel(path)}</span>
-            </p>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+          <LessonHeroImage article={article} path={path} />
+          <p className="text-sm text-muted mb-4">
+            Previewing as <span className="font-bold text-navy">{lessonPathLabel(path)}</span>
+          </p>
             <h1 className="font-display text-2xl sm:text-3xl font-bold text-navy mb-3 break-words">
               {localized.title}
             </h1>
@@ -306,8 +305,7 @@ export default function AdminLessonPreviewPage() {
               </div>
               <div className={LESSON_SIDEBAR_COLUMN_CLASS}>{sidebar}</div>
             </div>
-          </div>
-        </>
+        </div>
       )}
     </div>
   )

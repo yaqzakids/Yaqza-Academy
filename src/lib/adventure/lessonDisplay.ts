@@ -1,4 +1,5 @@
 import { usulThemeLabel } from '@/lib/discoverer'
+import { articleDisplayTitle } from '@/lib/admin/articleI18n'
 import { getLearningPathBySlug, adventurePathDisplayTitle } from '@/lib/learningPaths'
 import { resolveContinueLessonCover } from '@/lib/journey/continueLessonCover'
 import type { AdventureArticle, AdventurePath } from '@/lib/adventure/types'
@@ -19,7 +20,7 @@ export function lessonHeroImage(article: AdventureArticle, path?: AdventurePath 
   return resolveContinueLessonCover({
     articleCoverUrl: article.cover_image_url,
     articleSlug: article.slug,
-    articleTitle: article.title,
+    articleTitle: articleDisplayTitle(article),
     pathCoverUrl: path?.cover_image_url ?? null,
   })
 }
@@ -48,6 +49,7 @@ const LESSON_SLUG_TAGS: Record<string, string[]> = {
   'death-of-aminah': ['Seerah', 'Orphan', 'Aminah', 'Surah Ad-Duha'],
   'abu-talib-guardian': ['Seerah', 'Al-Amīn', 'Abu Talib', 'Character'],
   'shepherding-in-makkah': ['Seerah', 'Leadership', 'Honest Work', 'Surah Ad-Duha'],
+  'hilf-al-fudul': ['Seerah', 'Justice', 'Hilf al-Fudul', 'Surah An-Nisa'],
   'childhood-of-prophet-muhammad': ['Seerah', 'Makkah', 'Al-Amīn', 'Surah Ad-Duha'],
   'the-first-revelation': ['Seerah', 'Jahiliyyah', 'Iqra', 'Surah Al-Alaq'],
   'the-secret-call': ['Seerah', "Da'wah", 'Sabr', 'Surah An-Nahl'],
@@ -63,6 +65,7 @@ const LESSON_COLLECTION_LABELS: Record<string, string> = {
   'death-of-aminah': 'Life of Prophet Muhammad ﷺ',
   'abu-talib-guardian': 'Life of Prophet Muhammad ﷺ',
   'shepherding-in-makkah': 'Life of Prophet Muhammad ﷺ',
+  'hilf-al-fudul': 'Life of Prophet Muhammad ﷺ',
   'childhood-of-prophet-muhammad': 'Life of Prophet Muhammad ﷺ',
   'the-first-revelation': 'Life of Prophet Muhammad ﷺ',
   'the-secret-call': 'Life of Prophet Muhammad ﷺ',
