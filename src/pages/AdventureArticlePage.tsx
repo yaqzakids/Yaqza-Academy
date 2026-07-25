@@ -1,22 +1,55 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useSelectedChild } from '@/context/SelectedChildContext'
 import ArticleProgressButton from '@/components/adventure/ArticleProgressButton'
-import QuizComponent from '@/components/adventure/QuizComponent'
 import StarsDisplay from '@/components/adventure/StarsDisplay'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ErrorMessage from '@/components/ErrorMessage'
 import DiscovererArticleView from '@/components/discoverer/DiscovererArticleView'
+import LessonSidebar from '@/components/adventure/lesson/LessonSidebar'
+import LessonQuizModal from '@/components/adventure/lesson/LessonQuizModal'
+import QuizCelebrationModal from '@/components/adventure/lesson/QuizCelebrationModal'
+import ReadingCompleteModal from '@/components/adventure/lesson/ReadingCompleteModal'
 import {
   fetchAdventureArticle,
   fetchArticleProgress,
+  markArticleRead,
 } from '@/lib/adventure/service'
 import { getLocalizedArticleFields } from '@/lib/admin/articleI18n'
 import { STORAGE_KEYS } from '@/lib/constants'
 import type { AdventureArticle, AdventurePath, ArticleProgress } from '@/lib/adventure/types'
-import ReadAloudPlayer from '@/components/voice/ReadAloudPlayer'
+import {
+  lessonAgeLabel,
+  lessonFamilyDiscussion,
+  lessonFunFacts,
+  lessonPathLabel,
+  lessonPathUrl,
+  lessonTopicTags,
+  lessonVocabulary,
+} from '@/lib/adventure/lessonDisplay'
+import {
+  LessonFaithReflectionSection,
+  LessonFunFactsSection,
+  LessonMainContentSection,
+  LessonParentDiscussionSection,
+  LessonTakeActionSection,
+  LessonTopicTags,
+  LessonVocabularySection,
+} from '@/components/adventure/lesson/LessonSections'
+import {
+  LESSON_MAIN_COLUMN_CLASS,
+  LESSON_MOBILE_SIDEBAR_CLASS,
+  LESSON_PAGE_GRID_CLASS,
+  LESSON_SIDEBAR_COLUMN_CLASS,
+} from '@/components/adventure/lesson/lessonLayout'
+import LessonActivityCardsSection from '@/components/adventure/lesson/LessonActivityCardsSection'
+import LessonHeroImage from '@/components/adventure/lesson/LessonHeroImage'
+import { lessonActivityCards } from '@/lib/adventure/lessonActivityCards'
 import { buildArticleReadAloudBody } from '@/lib/voice/readAloudText'
 import { resolveReadAloudLanguage } from '@/lib/voice/language'
+import { useLessonFlow } from '@/hooks/useLessonFlow'
+import { useLessonReadingProgress } from '@/hooks/useLessonReadingProgress'
+import { useOpenQuizFromQuery } from '@/hooks/useOpenQuizFromQuery'
 import type { AgeGroup } from '@/lib/types'
 
 export default function AdventureArticlePage() {
@@ -28,7 +61,9 @@ export default function AdventureArticlePage() {
   const [progress, setProgress] = useState<ArticleProgress | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [quizKey, setQuizKey] = useState(0)
+  const [starsAwarded, setStarsAwarded] = useState(25)
+  const endSentinelRef = useRef<HTMLDivElement>(null)
+  const endAutoMarkedRef = useRef(false)
 
   const ageGroup = (localStorage.getItem(STORAGE_KEYS.ageGroup) as AgeGroup) ?? selectedChild?.age_group ?? 'explorer'
   const readAloudLanguage = resolveReadAloudLanguage({
@@ -62,6 +97,43 @@ export default function AdventureArticlePage() {
     load()
   }, [pathSlug, articleSlug, selectedChild?.id])
 
+  const { scrollPercent, reachedEnd } = useLessonReadingProgress(endSentinelRef)
+  const hasQuiz = Boolean(quizId)
+
+  const {
+    readCompleted,
+    quizUnlocked,
+    quizPassed,
+    showReadingModal,
+    showQuizModal,
+    showCelebration,
+    setShowReadingModal,
+    setShowCelebration,
+    setShowQuizModal,
+    handleReadComplete,
+    startQuiz,
+    handleQuizPassed,
+  } = useLessonFlow({
+    initialProgress: progress,
+    hasQuiz,
+    onProgressUpdated: setProgress,
+  })
+
+  useOpenQuizFromQuery({
+    enabled: hasQuiz && readCompleted,
+    onOpenQuiz: startQuiz,
+  })
+
+  useEffect(() => {
+    if (!article || !selectedChild || !reachedEnd || readCompleted || endAutoMarkedRef.current) return
+    endAutoMarkedRef.current = true
+    void markArticleRead(selectedChild.id, article.id)
+      .then((p) => handleReadComplete(p))
+      .catch(() => {
+        endAutoMarkedRef.current = false
+      })
+  }, [reachedEnd, readCompleted, article, selectedChild, handleReadComplete])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
@@ -80,22 +152,31 @@ export default function AdventureArticlePage() {
 
   const localized = getLocalizedArticleFields(article, readAloudLanguage, ageGroup)
   const content = localized.content
+  const topicTags = lessonTopicTags(article, path)
+  const funFacts = lessonFunFacts(article)
+  const vocabulary = lessonVocabulary(article)
+  const familyDiscussion = lessonFamilyDiscussion(article)
+  const activityCards = lessonActivityCards(article, ageGroup)
+  const activityForSection =
+    ageGroup === 'explorer'
+      ? localized.activity?.trim() || null
+      : ageGroup === 'thinker'
+        ? null
+        : localized.activity?.trim() || article.take_action?.trim() || null
 
   if (ageGroup === 'discoverer') {
     return (
-      <>
-        <DiscovererArticleView
-          path={path}
-          article={article}
-          quizId={quizId}
-          progress={progress}
-          childId={selectedChild.id}
-          localized={localized}
-          language={readAloudLanguage}
-          ageGroup={ageGroup}
-          onProgressUpdated={setProgress}
-        />
-      </>
+      <DiscovererArticleView
+        path={path}
+        article={article}
+        quizId={quizId}
+        progress={progress}
+        childId={selectedChild.id}
+        localized={localized}
+        language={readAloudLanguage}
+        ageGroup={ageGroup}
+        onProgressUpdated={setProgress}
+      />
     )
   }
 
@@ -106,83 +187,128 @@ export default function AdventureArticlePage() {
     activity: localized.activity,
   })
 
+  const sidebar = (
+    <LessonSidebar
+      lessonTitle={localized.title}
+      readAloudContent={readAloudContent}
+      language={readAloudLanguage}
+      articleId={article.id}
+      ageGroup={ageGroup}
+      scrollPercent={scrollPercent}
+      quizUnlocked={quizUnlocked}
+      quizPassed={quizPassed}
+      hasQuiz={hasQuiz}
+      onStartQuiz={startQuiz}
+    />
+  )
+
   return (
     <div className="min-h-screen bg-bg page-transition">
-      {article.cover_image_url && (
-        <img src={article.cover_image_url} alt="" className="w-full h-56 object-cover" />
+      <ReadingCompleteModal
+        lessonTitle={localized.title}
+        open={showReadingModal}
+        hasQuiz={hasQuiz && !quizPassed}
+        onStartQuiz={startQuiz}
+        onLater={() => setShowReadingModal(false)}
+      />
+
+      {quizId && (
+        <LessonQuizModal
+          open={showQuizModal}
+          childId={selectedChild.id}
+          quizId={quizId}
+          ageGroup={ageGroup}
+          language={readAloudLanguage}
+          lessonTitle={localized.title}
+          onClose={() => setShowQuizModal(false)}
+          onPassed={async (result) => {
+            if (result?.starsAwarded) setStarsAwarded(result.starsAwarded)
+            await load()
+            handleQuizPassed()
+          }}
+        />
       )}
-      <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link to={`/adventures/${path.slug}`} className="text-teal text-sm font-bold hover:underline">
-          ← Back to {path.title}
+
+      <QuizCelebrationModal
+        open={showCelebration}
+        lessonTitle={localized.title}
+        starsAwarded={starsAwarded}
+        continueUrl={lessonPathUrl(path)}
+        onClose={() => setShowCelebration(false)}
+      />
+
+      <LessonHeroImage article={article} path={path} className="mb-0 [&_img]:rounded-none" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+        <Link to={lessonPathUrl(path)} className="text-teal text-sm font-bold hover:underline">
+          ← Back to {lessonPathLabel(path)}
         </Link>
-        <div className="flex justify-between items-start gap-4 mt-4 mb-2">
-          <h1 className="font-display text-3xl font-bold text-navy">{localized.title}</h1>
+
+        {readCompleted && quizPassed && (
+          <p className="mt-4 mb-0 inline-flex items-center gap-2 rounded-full bg-teal/10 text-teal px-4 py-1.5 text-xs font-extrabold">
+            ✅ Completed — you&apos;re reviewing this lesson
+          </p>
+        )}
+        {readCompleted && !quizPassed && hasQuiz && (
+          <p className="mt-4 mb-0 inline-flex items-center gap-2 rounded-full bg-gold/15 text-[#92400E] px-4 py-1.5 text-xs font-extrabold">
+            📖 Read — quiz not passed yet. Use the quiz card to try again.
+          </p>
+        )}
+
+        <div className="flex flex-wrap justify-between items-start gap-4 mt-4 mb-2">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-navy min-w-0 flex-1 break-words">{localized.title}</h1>
           <StarsDisplay childId={selectedChild?.id ?? null} />
         </div>
-        <ReadAloudPlayer
-          label="Listen to this article"
-            title={localized.title}
-          content={readAloudContent}
-          language={readAloudLanguage}
-          articleId={article.id}
-          ageGroup={ageGroup}
-        />
-        <p className="text-muted text-sm mb-6 mt-4">⏱ {article.reading_time_minutes} min read</p>
 
-        <div
-          className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 shadow-sm space-y-4"
-          dir={readAloudLanguage === 'ar' ? 'rtl' : 'ltr'}
-        >
-          <p
-            className="text-navy leading-relaxed"
-            style={readAloudLanguage === 'ar' ? { fontFamily: "'Noto Naskh Arabic', 'Amiri', serif", lineHeight: 1.9 } : undefined}
-          >
-            {content}
-          </p>
-          {localized.islamic_teaching && (
-            <div className="bg-[#F0FBF5] rounded-xl p-4 border-l-4 border-teal">
-              <p className="text-xs font-extrabold text-teal uppercase mb-2">☪️ What Islam Teaches</p>
-              <p className="text-sm text-navy">{localized.islamic_teaching}</p>
-            </div>
-          )}
-          {localized.think_about_it && localized.think_about_it.length > 0 && (
-            <div className="bg-[#FFFBF0] rounded-xl p-4 border-l-4 border-gold">
-              <p className="text-xs font-extrabold text-gold uppercase mb-2">💡 Think About It</p>
-              <ul className="space-y-1">
-                {localized.think_about_it.map((q, i) => (
-                  <li key={i} className="text-sm text-navy">• {q}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {localized.activity && (
-            <div className="bg-[#F5F3FF] rounded-xl p-4 border-l-4 border-purple">
-              <p className="text-xs font-extrabold text-purple uppercase mb-2">🎨 Activity</p>
-              <p className="text-sm text-navy">{localized.activity}</p>
-            </div>
-          )}
-        </div>
+        <LessonTopicTags tags={topicTags} className="mb-3" />
 
-        <ArticleProgressButton
-          childId={selectedChild!.id}
-          articleId={article.id}
-          initialProgress={progress}
-          onUpdated={setProgress}
-        />
+        <p className="text-muted text-sm mb-6">
+          ⏱ {article.reading_time_minutes} min read · {lessonAgeLabel(article)}
+        </p>
 
-        {quizId && (
-          <div className="mt-10" key={quizKey}>
-            <QuizComponent
-              childId={selectedChild!.id}
-              quizId={quizId}
+        <div className={LESSON_MOBILE_SIDEBAR_CLASS}>{sidebar}</div>
+
+        <LessonFunFactsSection facts={funFacts} />
+
+        <div className={LESSON_PAGE_GRID_CLASS}>
+          <div className={LESSON_MAIN_COLUMN_CLASS}>
+            <LessonMainContentSection
+              content={content}
+              excerpt={article.excerpt}
               language={readAloudLanguage}
-              onPassed={() => {
-                setQuizKey((k) => k + 1)
-                load()
-              }}
             />
+
+            <LessonVocabularySection vocabulary={vocabulary} />
+
+            <LessonFaithReflectionSection
+              article={article}
+              islamicTeaching={localized.islamic_teaching}
+              thinkAbout={localized.think_about_it}
+              variant="explorer"
+            />
+
+            {activityCards.length > 0 ? (
+              <LessonActivityCardsSection cards={activityCards} />
+            ) : (
+              <LessonTakeActionSection takeAction={null} activity={activityForSection} />
+            )}
+
+            <LessonParentDiscussionSection question={familyDiscussion} />
+
+            <div ref={endSentinelRef} className="h-1" aria-hidden />
+
+            <div className="mt-6">
+              <ArticleProgressButton
+                childId={selectedChild.id}
+                articleId={article.id}
+                initialProgress={progress}
+                onUpdated={setProgress}
+                onReadComplete={handleReadComplete}
+              />
+            </div>
           </div>
-        )}
+
+          <div className={LESSON_SIDEBAR_COLUMN_CLASS}>{sidebar}</div>
+        </div>
       </div>
     </div>
   )
