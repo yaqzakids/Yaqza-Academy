@@ -1,0 +1,10 @@
+mkdir -p ~/Projects/yaqza-academy-waitlist
+cd ~/Projects/yaqza-academy-waitlist
+unzip ~/Downloads/yaqza-academy-waitlist.zip
+cd yaqza-academy-waitlist
+git init
+git add .
+git commit -m "Initial Yaqza Academy landing page"
+git branch -M main
+git remote add origin git@github.com:yaqzakids/Yaqza-Academy.git
+git push -u origin main --force
